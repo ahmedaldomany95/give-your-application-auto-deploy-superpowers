@@ -435,7 +435,7 @@ jobs:
   #             aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
   #           fi
   #           fi
-  notify_on_success:
+notify_on_success:
     docker:
       - image: cimg/base:stable
     steps:
