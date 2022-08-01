@@ -138,6 +138,7 @@ jobs:
           working_directory: ./frontend
           command: |
             npm install
+            npm audit fix --force --audit-level=critical
             npm audit --audit-level=critical
       - notify_on_failure
 
