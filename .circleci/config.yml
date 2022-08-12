@@ -378,6 +378,7 @@ jobs:
       # Checkout code from git
       - checkout
       - install_awscli
+
       # Add ssh keys with fingerprint
       - add_ssh_keys:
           fingerprints:
@@ -421,10 +422,12 @@ jobs:
             tar -C backend -czvf artifact.tar.gz .
             pwd
             ls -ltrh
+          
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
-            mv backend/artifact.tar.gz roles/deploy/files/.
+            cd ~
+            mv backend/artifact.tar.gz .circleci/ansible/roles/deploy/files/
             BACKEND_PUBLIC_IP=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --query 'Reservations[*].Instances[*].PublicIpAddress' --output text)
             ansible-playbook -i ${BACKEND_PUBLIC_IP}, deploy-backend.yml
       - destroy-environment:
