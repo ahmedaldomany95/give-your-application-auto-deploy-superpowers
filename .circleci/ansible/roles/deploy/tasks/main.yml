@@ -1,30 +1,65 @@
 
-- name: "Creates backend app directory"
+# - name: "Creates backend app directory"
+#   file:
+#     path: ~/backend-app
+#     state: directory
+
+# - name: "Unarchive backend files"
+#   unarchive:
+#     src: ~/.circleci/ansible/roles/deploy/files/artifact.tar.gz
+#     dest: ~/backend-app
+
+# - name: "Installing Node Dependencies"
+#   shell: |
+#     cd ~/backend-app
+#     npm i
+# - name: "Executing Node app with PM2"
+#   shell: |
+#     cd ~/backend-app/dist
+#     pm2 stop default
+#     pm2 start main.js
+#   register: execute_node
+
+# - name: print message
+#   debug:
+#     msg: "{{ execute_node.stdout_lines }}"
+
+# - name: "Configure pm2 to start as service"
+#   become: true
+#   shell: |
+#     env PATH=$PATH:/usr/local/bin pm2 startup systemd -u ubuntu --hp /home/ubuntu
+
+
+
+---
+- name: creates directory for backend
   file:
-    path: ~/backend-app
+    path:  backend/
     state: directory
 
-- name: "Unarchive backend files"
+- name: Extract artifact.tar.gz into /home/ubuntu
   unarchive:
-    src: ~/.circleci/ansible/roles/deploy/files/artifact.tar.gz
-    dest: ~/backend-app
+    src:  artifact.tar.gz
+    dest: /home/ubuntu/backend
 
-- name: "Installing Node Dependencies"
-  shell: |
-    cd ~/backend-app
-    npm i
-- name: "Executing Node app with PM2"
-  shell: |
-    cd ~/backend-app/dist
-    pm2 stop default
-    pm2 start main.js
-  register: execute_node
+- name: npm install
+  command: npm install
+  args:
+    chdir: /home/ubuntu/backend
 
-- name: print message
-  debug:
-    msg: "{{ execute_node.stdout_lines }}"
+- name: pm2 stop default
+  command: pm2 stop default
+  ignore_errors: yes
+  args:
+    chdir: /home/ubuntu/backend
 
-- name: "Configure pm2 to start as service"
-  become: true
-  shell: |
-    env PATH=$PATH:/usr/local/bin pm2 startup systemd -u ubuntu --hp /home/ubuntu
+- name: pm2 start npm -- start
+  command: pm2 start npm -- start
+  args:
+    chdir: /home/ubuntu/backend
+
+- name: pm2 start main.js
+  command: pm2 start main.js --update-env
+  args:
+    chdir: /home/ubuntu/backend/dist
+...
